@@ -75,7 +75,7 @@ const ApplicationDetail = () => {
   }
 
   const getDocStatusIcon = (status: string) => {
-    if (status === "approved") return <CheckCircle className="h-4 w-4 text-green-600" />;
+    if (status === "approved") return <CheckCircle className="h-4 w-4 text-primary" />;
     if (status === "rejected") return <XCircle className="h-4 w-4 text-destructive" />;
     return <Clock className="h-4 w-4 text-muted-foreground" />;
   };
