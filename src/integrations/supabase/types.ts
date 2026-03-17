@@ -20,6 +20,7 @@ export type Database = {
           created_at: string
           estimated_completion: string | null
           id: string
+          service_type: Database["public"]["Enums"]["service_type"]
           status: Database["public"]["Enums"]["app_status"]
           updated_at: string
           user_id: string
@@ -29,6 +30,7 @@ export type Database = {
           created_at?: string
           estimated_completion?: string | null
           id?: string
+          service_type?: Database["public"]["Enums"]["service_type"]
           status?: Database["public"]["Enums"]["app_status"]
           updated_at?: string
           user_id: string
@@ -38,11 +40,53 @@ export type Database = {
           created_at?: string
           estimated_completion?: string | null
           id?: string
+          service_type?: Database["public"]["Enums"]["service_type"]
           status?: Database["public"]["Enums"]["app_status"]
           updated_at?: string
           user_id?: string
         }
         Relationships: []
+      }
+      deliverables: {
+        Row: {
+          application_id: string
+          created_at: string
+          doc_type: string
+          file_name: string
+          file_path: string
+          id: string
+          uploaded_by: string
+          user_id: string
+        }
+        Insert: {
+          application_id: string
+          created_at?: string
+          doc_type: string
+          file_name: string
+          file_path: string
+          id?: string
+          uploaded_by: string
+          user_id: string
+        }
+        Update: {
+          application_id?: string
+          created_at?: string
+          doc_type?: string
+          file_name?: string
+          file_path?: string
+          id?: string
+          uploaded_by?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deliverables_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       documents: {
         Row: {
@@ -211,6 +255,7 @@ export type Database = {
         | "ready"
         | "rejected"
       payment_status: "pending" | "verified" | "rejected"
+      service_type: "driving_license" | "outlier_account" | "handshake_ai"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -347,6 +392,7 @@ export const Constants = {
         "rejected",
       ],
       payment_status: ["pending", "verified", "rejected"],
+      service_type: ["driving_license", "outlier_account", "handshake_ai"],
     },
   },
 } as const
