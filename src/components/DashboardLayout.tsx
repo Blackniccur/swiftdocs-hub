@@ -1,20 +1,21 @@
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Shield, LayoutDashboard, FileText, CreditCard, Settings, LogOut, Users } from "lucide-react";
+import { Shield, LayoutDashboard, ShoppingBag, CreditCard, Headphones, LogOut, Users } from "lucide-react";
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const { user, isAdmin, signOut } = useAuth();
   const location = useLocation();
 
   const clientLinks = [
-    { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/dashboard/new-application", label: "New Application", icon: FileText },
+    { href: "/dashboard", label: "My Orders", icon: LayoutDashboard },
+    { href: "/dashboard/new-application", label: "Purchase", icon: ShoppingBag },
     { href: "/dashboard/payments", label: "Payments", icon: CreditCard },
+    { href: "/dashboard/support", label: "Support", icon: Headphones },
   ];
 
   const adminLinks = [
-    { href: "/admin", label: "All Applications", icon: Users },
+    { href: "/admin", label: "All Orders", icon: Users },
     { href: "/admin/payments", label: "All Payments", icon: CreditCard },
   ];
 
@@ -22,21 +23,16 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Top nav */}
       <header className="border-b bg-card sticky top-0 z-50">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <Link to="/dashboard" className="flex items-center gap-2">
             <Shield className="h-7 w-7 text-primary" />
-            <span className="font-bold text-foreground text-lg">DocVerify Pro</span>
+            <span className="font-bold text-foreground text-lg">AccelDocs</span>
           </Link>
           <div className="flex items-center gap-3">
-            <span className="text-sm text-muted-foreground hidden sm:block">
-              {user?.email}
-            </span>
+            <span className="text-sm text-muted-foreground hidden sm:block">{user?.email}</span>
             {isAdmin && (
-              <span className="text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded-full font-medium">
-                Admin
-              </span>
+              <span className="text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded-full font-medium">Admin</span>
             )}
             <Button variant="ghost" size="icon" onClick={signOut}>
               <LogOut className="h-4 w-4" />
@@ -46,7 +42,6 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
       </header>
 
       <div className="flex">
-        {/* Sidebar */}
         <aside className="w-56 border-r bg-card min-h-[calc(100vh-57px)] hidden md:block p-4">
           <nav className="space-y-1">
             {links.map((link) => {
@@ -56,9 +51,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
                   key={link.href}
                   to={link.href}
                   className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    isActive
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                    isActive ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                   }`}
                 >
                   <link.icon className="h-4 w-4" />
@@ -69,7 +62,6 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
           </nav>
         </aside>
 
-        {/* Mobile nav */}
         <div className="md:hidden fixed bottom-0 left-0 right-0 bg-card border-t z-50 px-2 py-1">
           <div className="flex justify-around">
             {links.slice(0, 4).map((link) => {
@@ -90,10 +82,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
           </div>
         </div>
 
-        {/* Main content */}
-        <main className="flex-1 p-4 md:p-6 pb-20 md:pb-6">
-          {children}
-        </main>
+        <main className="flex-1 p-4 md:p-6 pb-20 md:pb-6">{children}</main>
       </div>
     </div>
   );
