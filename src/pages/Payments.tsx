@@ -9,19 +9,31 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { CreditCard, Upload } from "lucide-react";
+import { Upload, Wallet } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
+
+const paymentMethods = [
+  { value: "binance", label: "Binance (Crypto)" },
+  { value: "mpesa", label: "M-Pesa" },
+];
 
 const Payments = () => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [applications, setApplications] = useState<Tables<"applications">[]>([]);
+  const [applications, setApplications] = useState<any[]>([]);
   const [payments, setPayments] = useState<Tables<"payments">[]>([]);
   const [selectedApp, setSelectedApp] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("");
   const [referenceNumber, setReferenceNumber] = useState("");
   const [proofFile, setProofFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  const serviceLabels: Record<string, string> = {
+    driving_license: "Driving License",
+    outlier_account: "Outlier Account",
+    handshake_ai: "Handshake AI",
+  };
 
   useEffect(() => {
     if (!user) return;
@@ -39,22 +51,20 @@ const Payments = () => {
 
   const handleUploadProof = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !selectedApp || !proofFile) return;
+    if (!user || !selectedApp || !proofFile || !paymentMethod) return;
 
     setSubmitting(true);
     try {
       const ext = proofFile.name.split(".").pop();
       const filePath = `${user.id}/${selectedApp}/proof_${Date.now()}.${ext}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from("payment-proofs")
-        .upload(filePath, proofFile);
+      const { error: uploadError } = await supabase.storage.from("payment-proofs").upload(filePath, proofFile);
       if (uploadError) throw uploadError;
 
       const { error } = await supabase.from("payments").insert({
         application_id: selectedApp,
         user_id: user.id,
-        payment_method: "upload",
+        payment_method: paymentMethod,
         proof_file_path: filePath,
         reference_number: referenceNumber || null,
       });
@@ -62,10 +72,10 @@ const Payments = () => {
 
       toast({ title: "Payment proof uploaded!", description: "It will be verified by our team." });
 
-      // Refresh
       const { data } = await supabase.from("payments").select("*").eq("user_id", user.id).order("created_at", { ascending: false });
       setPayments(data || []);
       setSelectedApp("");
+      setPaymentMethod("");
       setReferenceNumber("");
       setProofFile(null);
     } catch (err: any) {
@@ -78,7 +88,26 @@ const Payments = () => {
   return (
     <DashboardLayout>
       <div className="max-w-3xl mx-auto space-y-6">
-        <h1 className="text-2xl font-bold text-foreground">Payments</h1>
+        <h1 className="text-2xl font-bold text-foreground">Payment Verification</h1>
+
+        {/* Payment instructions */}
+        <Card className="border-primary/20 bg-primary/5">
+          <CardContent className="p-4">
+            <div className="flex items-start gap-3">
+              <Wallet className="h-5 w-5 text-primary mt-0.5" />
+              <div className="text-sm space-y-1">
+                <p className="font-medium text-foreground">Payment Instructions</p>
+                <p className="text-muted-foreground">
+                  <strong>Binance:</strong> Send payment to wallet address <code className="bg-muted px-1 rounded">0x1234...abcd</code>
+                </p>
+                <p className="text-muted-foreground">
+                  <strong>M-Pesa:</strong> Send to paybill <code className="bg-muted px-1 rounded">123456</code>, account: your email
+                </p>
+                <p className="text-muted-foreground">After paying, upload your receipt/screenshot below.</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Upload payment proof */}
         <Card>
@@ -88,33 +117,46 @@ const Payments = () => {
               Upload Payment Proof
             </CardTitle>
             <CardDescription>
-              Upload a screenshot or receipt of your payment along with the reference number.
+              Upload a screenshot or receipt of your Binance or M-Pesa payment.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleUploadProof} className="space-y-4">
               <div className="space-y-2">
-                <Label>Application</Label>
+                <Label>Order</Label>
                 <Select value={selectedApp} onValueChange={setSelectedApp}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select application" />
+                    <SelectValue placeholder="Select order" />
                   </SelectTrigger>
                   <SelectContent>
                     {applications.map((app) => (
                       <SelectItem key={app.id} value={app.id}>
-                        Application #{app.id.slice(0, 8)}
+                        {serviceLabels[app.service_type] || app.service_type} — #{app.id.slice(0, 8)}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="ref">Reference Number (optional)</Label>
+                <Label>Payment Method</Label>
+                <Select value={paymentMethod} onValueChange={setPaymentMethod}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select payment method" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {paymentMethods.map((m) => (
+                      <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="ref">Reference / Transaction ID</Label>
                 <Input
                   id="ref"
                   value={referenceNumber}
                   onChange={(e) => setReferenceNumber(e.target.value)}
-                  placeholder="e.g. TXN-123456"
+                  placeholder="e.g. TXN-123456 or M-Pesa code"
                 />
               </div>
               <div className="space-y-2">
@@ -126,7 +168,7 @@ const Payments = () => {
                   onChange={(e) => setProofFile(e.target.files?.[0] || null)}
                 />
               </div>
-              <Button type="submit" disabled={submitting || !selectedApp || !proofFile}>
+              <Button type="submit" disabled={submitting || !selectedApp || !proofFile || !paymentMethod}>
                 {submitting ? "Uploading..." : "Upload Proof"}
               </Button>
             </form>
@@ -150,11 +192,10 @@ const Payments = () => {
                 {payments.map((pay) => (
                   <div key={pay.id} className="flex items-center justify-between border rounded-md p-3">
                     <div>
-                      <p className="text-sm font-medium text-foreground">
-                        App #{pay.application_id.slice(0, 8)}
+                      <p className="text-sm font-medium text-foreground capitalize">
+                        {pay.payment_method} Payment
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {pay.payment_method === "stripe" ? "Stripe" : "Upload"} •{" "}
                         {new Date(pay.created_at).toLocaleDateString()}
                       </p>
                       {pay.reference_number && (
@@ -162,9 +203,7 @@ const Payments = () => {
                       )}
                     </div>
                     <Badge
-                      variant={
-                        pay.status === "verified" ? "default" : pay.status === "rejected" ? "destructive" : "secondary"
-                      }
+                      variant={pay.status === "verified" ? "default" : pay.status === "rejected" ? "destructive" : "secondary"}
                     >
                       {pay.status}
                     </Badge>

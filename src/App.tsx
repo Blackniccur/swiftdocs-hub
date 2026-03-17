@@ -11,6 +11,7 @@ import Dashboard from "./pages/Dashboard";
 import NewApplication from "./pages/NewApplication";
 import ApplicationDetail from "./pages/ApplicationDetail";
 import Payments from "./pages/Payments";
+import ContactSupport from "./pages/ContactSupport";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminPayments from "./pages/AdminPayments";
 import NotFound from "./pages/NotFound";
@@ -31,6 +32,7 @@ const App = () => (
             <Route path="/dashboard/new-application" element={<ProtectedRoute><NewApplication /></ProtectedRoute>} />
             <Route path="/dashboard/application/:id" element={<ProtectedRoute><ApplicationDetail /></ProtectedRoute>} />
             <Route path="/dashboard/payments" element={<ProtectedRoute><Payments /></ProtectedRoute>} />
+            <Route path="/dashboard/support" element={<ProtectedRoute><ContactSupport /></ProtectedRoute>} />
             <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
             <Route path="/admin/payments" element={<ProtectedRoute><AdminPayments /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />

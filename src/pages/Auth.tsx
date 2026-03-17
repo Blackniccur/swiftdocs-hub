@@ -4,10 +4,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Shield, FileText, Upload } from "lucide-react";
+import { Shield, Car, Briefcase, Bot } from "lucide-react";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
@@ -29,7 +29,6 @@ const Auth = () => {
       },
     });
     setLoading(false);
-
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
@@ -42,7 +41,6 @@ const Auth = () => {
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
-
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
@@ -52,40 +50,31 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Header */}
       <div className="border-b bg-card">
         <div className="container mx-auto px-4 py-4 flex items-center gap-2">
           <Shield className="h-8 w-8 text-primary" />
-          <h1 className="text-xl font-bold text-foreground">DocVerify Pro</h1>
+          <h1 className="text-xl font-bold text-foreground">AccelDocs</h1>
         </div>
       </div>
 
       <div className="flex-1 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
-          {/* Hero text */}
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-foreground mb-2">
-              Document Processing Platform
-            </h2>
-            <p className="text-muted-foreground">
-              Upload your documents. Get verified in 5 business days.
-            </p>
+            <h2 className="text-3xl font-bold text-foreground mb-2">Welcome to AccelDocs</h2>
+            <p className="text-muted-foreground">Your marketplace for document & account services</p>
           </div>
 
-          {/* Features */}
           <div className="flex justify-center gap-6 mb-8">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <FileText className="h-4 w-4 text-primary" />
-              <span>Secure Upload</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Upload className="h-4 w-4 text-primary" />
-              <span>Fast Processing</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Shield className="h-4 w-4 text-primary" />
-              <span>Verified</span>
-            </div>
+            {[
+              { icon: Car, label: "Driving License" },
+              { icon: Briefcase, label: "Outlier" },
+              { icon: Bot, label: "Handshake AI" },
+            ].map((s) => (
+              <div key={s.label} className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                <s.icon className="h-4 w-4 text-primary" />
+                <span>{s.label}</span>
+              </div>
+            ))}
           </div>
 
           <Card>
@@ -96,7 +85,6 @@ const Auth = () => {
                   <TabsTrigger value="signup">Sign Up</TabsTrigger>
                 </TabsList>
               </CardHeader>
-
               <TabsContent value="signin">
                 <form onSubmit={handleSignIn}>
                   <CardContent className="space-y-4">
@@ -115,7 +103,6 @@ const Auth = () => {
                   </CardContent>
                 </form>
               </TabsContent>
-
               <TabsContent value="signup">
                 <form onSubmit={handleSignUp}>
                   <CardContent className="space-y-4">
