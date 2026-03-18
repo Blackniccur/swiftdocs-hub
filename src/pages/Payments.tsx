@@ -33,6 +33,8 @@ const Payments = () => {
     driving_license: "Driving License",
     outlier_account: "Outlier Account",
     handshake_ai: "Handshake AI",
+    mercor_ai: "Mercor AI",
+    full_course: "Freelancing AI Course",
   };
 
   useEffect(() => {
