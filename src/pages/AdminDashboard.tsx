@@ -39,6 +39,8 @@ const deliverableTypes = [
   { value: "driving_license", label: "Driving License" },
   { value: "outlier_account", label: "Outlier Account Credentials" },
   { value: "handshake_ai_account", label: "Handshake AI Account Credentials" },
+  { value: "mercor_ai_account", label: "Mercor AI Account Credentials" },
+  { value: "full_course_access", label: "Full Course Access" },
 ];
 
 const AdminDashboard = () => {

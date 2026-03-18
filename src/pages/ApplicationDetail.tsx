@@ -14,6 +14,8 @@ const serviceLabels: Record<string, string> = {
   driving_license: "Driving License",
   outlier_account: "Outlier Account",
   handshake_ai: "Handshake AI Account",
+  mercor_ai: "Mercor AI Account",
+  full_course: "Freelancing AI Course",
 };
 
 const statusLabels: Record<string, string> = {
