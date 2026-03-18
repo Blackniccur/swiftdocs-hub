@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Shield, LayoutDashboard, ShoppingBag, CreditCard, Headphones, LogOut, Users, DollarSign } from "lucide-react";
+import { Shield, LayoutDashboard, ShoppingBag, CreditCard, Headphones, LogOut, Users, DollarSign, MessageSquare } from "lucide-react";
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const { user, isAdmin, signOut } = useAuth();
