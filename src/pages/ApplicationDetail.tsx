@@ -220,6 +220,7 @@ const ApplicationDetail = () => {
           </Link>
         </div>
       </div>
+      {id && <ChatWidget applicationId={id} />}
     </DashboardLayout>
   );
 };
