@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Shield, LayoutDashboard, ShoppingBag, CreditCard, Headphones, LogOut, Users } from "lucide-react";
+import { Shield, LayoutDashboard, ShoppingBag, CreditCard, Headphones, LogOut, Users, DollarSign } from "lucide-react";
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const { user, isAdmin, signOut } = useAuth();
@@ -17,6 +17,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const adminLinks = [
     { href: "/admin", label: "All Orders", icon: Users },
     { href: "/admin/payments", label: "All Payments", icon: CreditCard },
+    { href: "/admin/pricing", label: "Pricing", icon: DollarSign },
   ];
 
   const links = isAdmin ? [...clientLinks, ...adminLinks] : clientLinks;

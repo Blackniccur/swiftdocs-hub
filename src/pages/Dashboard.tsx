@@ -7,18 +7,22 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Car, Briefcase, Bot, Plus, Clock, CheckCircle, AlertCircle, ShoppingBag } from "lucide-react";
+import { Car, Briefcase, Bot, BookOpen, Plus, Clock, CheckCircle, AlertCircle, ShoppingBag } from "lucide-react";
 
 const serviceLabels: Record<string, string> = {
   driving_license: "Driving License",
   outlier_account: "Outlier Account",
   handshake_ai: "Handshake AI",
+  mercor_ai: "Mercor AI",
+  full_course: "Freelancing AI Course",
 };
 
 const serviceIcons: Record<string, typeof Car> = {
   driving_license: Car,
   outlier_account: Briefcase,
   handshake_ai: Bot,
+  mercor_ai: Briefcase,
+  full_course: BookOpen,
 };
 
 const statusLabels: Record<string, string> = {

@@ -215,6 +215,48 @@ export type Database = {
         }
         Relationships: []
       }
+      service_prices: {
+        Row: {
+          created_at: string
+          description: string
+          display_order: number
+          features: Json
+          icon_name: string
+          id: string
+          is_active: boolean
+          label: string
+          price: number
+          service_key: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string
+          display_order?: number
+          features?: Json
+          icon_name?: string
+          id?: string
+          is_active?: boolean
+          label: string
+          price?: number
+          service_key: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          display_order?: number
+          features?: Json
+          icon_name?: string
+          id?: string
+          is_active?: boolean
+          label?: string
+          price?: number
+          service_key?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -255,7 +297,12 @@ export type Database = {
         | "ready"
         | "rejected"
       payment_status: "pending" | "verified" | "rejected"
-      service_type: "driving_license" | "outlier_account" | "handshake_ai"
+      service_type:
+        | "driving_license"
+        | "outlier_account"
+        | "handshake_ai"
+        | "mercor_ai"
+        | "full_course"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -392,7 +439,13 @@ export const Constants = {
         "rejected",
       ],
       payment_status: ["pending", "verified", "rejected"],
-      service_type: ["driving_license", "outlier_account", "handshake_ai"],
+      service_type: [
+        "driving_license",
+        "outlier_account",
+        "handshake_ai",
+        "mercor_ai",
+        "full_course",
+      ],
     },
   },
 } as const

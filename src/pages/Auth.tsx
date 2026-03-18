@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Shield, Car, Briefcase, Bot } from "lucide-react";
+import { Shield, Car, Briefcase, Bot, BookOpen } from "lucide-react";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
@@ -64,11 +64,13 @@ const Auth = () => {
             <p className="text-muted-foreground">Your marketplace for document & account services</p>
           </div>
 
-          <div className="flex justify-center gap-6 mb-8">
+          <div className="flex flex-wrap justify-center gap-4 mb-8">
             {[
               { icon: Car, label: "Driving License" },
               { icon: Briefcase, label: "Outlier" },
               { icon: Bot, label: "Handshake AI" },
+              { icon: Briefcase, label: "Mercor AI" },
+              { icon: BookOpen, label: "AI Course" },
             ].map((s) => (
               <div key={s.label} className="flex items-center gap-1.5 text-sm text-muted-foreground">
                 <s.icon className="h-4 w-4 text-primary" />

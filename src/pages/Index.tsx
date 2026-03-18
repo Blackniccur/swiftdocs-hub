@@ -1,36 +1,32 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Shield, Car, Briefcase, Bot, Clock, CheckCircle, CreditCard, Headphones } from "lucide-react";
-
-const services = [
-  {
-    key: "driving_license",
-    title: "Driving License",
-    description: "Get your driving license processed in just 5 business days. Upload your passport and we handle the rest.",
-    icon: Car,
-    price: "$150",
-    features: ["5-day processing", "Full verification", "Digital & physical copy"],
-  },
-  {
-    key: "outlier_account",
-    title: "Outlier Account",
-    description: "Get a verified Outlier platform account set up and ready to use for remote work opportunities.",
-    icon: Briefcase,
-    price: "$80",
-    features: ["Account setup", "Profile optimization", "Ready to earn"],
-  },
-  {
-    key: "handshake_ai",
-    title: "Handshake AI Account",
-    description: "Get a fully configured Handshake AI account with premium access for career networking.",
-    icon: Bot,
-    price: "$100",
-    features: ["Premium access", "AI-powered matching", "Career tools"],
-  },
-];
+import { Shield, Clock, CheckCircle, CreditCard, Headphones } from "lucide-react";
+import { iconMap, type ServicePrice } from "@/lib/services";
 
 const Index = () => {
+  const [services, setServices] = useState<ServicePrice[]>([]);
+
+  useEffect(() => {
+    supabase
+      .from("service_prices")
+      .select("*")
+      .eq("is_active", true)
+      .order("display_order")
+      .then(({ data }) => {
+        if (data) {
+          setServices(
+            data.map((d: any) => ({
+              ...d,
+              features: Array.isArray(d.features) ? d.features : JSON.parse(d.features || "[]"),
+            }))
+          );
+        }
+      });
+  }, []);
+
   return (
     <div className="min-h-screen bg-background">
       {/* Nav */}
@@ -57,44 +53,48 @@ const Index = () => {
           Your One-Stop Marketplace for Document & Account Services
         </h1>
         <p className="text-base md:text-lg text-muted-foreground mb-8 max-w-xl mx-auto">
-          Purchase driving license processing, Outlier accounts, and Handshake AI accounts. Pay with Binance or M-Pesa.
+          Purchase driving license processing, Outlier, Handshake AI, Mercor AI accounts, and freelancing courses. Pay with Binance or M-Pesa.
         </p>
         <Link to="/auth">
-          <Button size="lg" className="text-base px-8">
-            Browse Services
-          </Button>
+          <Button size="lg" className="text-base px-8">Browse Services</Button>
         </Link>
       </section>
 
-      {/* Services */}
+      {/* Pricing Table */}
       <section className="container mx-auto px-4 py-12">
-        <h2 className="text-2xl font-bold text-foreground text-center mb-10">Our Services</h2>
-        <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-          {services.map((service) => (
-            <Card key={service.key} className="relative overflow-hidden hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
-                  <service.icon className="h-6 w-6 text-primary" />
-                </div>
-                <CardTitle className="text-lg">{service.title}</CardTitle>
-                <CardDescription className="text-sm">{service.description}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-3xl font-bold text-foreground mb-4">{service.price}</p>
-                <ul className="space-y-2 mb-6">
-                  {service.features.map((f) => (
-                    <li key={f} className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <CheckCircle className="h-4 w-4 text-primary shrink-0" />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <Link to="/auth">
-                  <Button className="w-full">Purchase Now</Button>
-                </Link>
-              </CardContent>
-            </Card>
-          ))}
+        <h2 className="text-2xl font-bold text-foreground text-center mb-3">Our Services & Pricing</h2>
+        <p className="text-muted-foreground text-center mb-10 max-w-lg mx-auto">
+          Transparent pricing — pick a service and get started today.
+        </p>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+          {services.map((service) => {
+            const Icon = iconMap[service.icon_name] || Shield;
+            return (
+              <Card key={service.id} className="relative overflow-hidden hover:shadow-lg transition-shadow flex flex-col">
+                <CardHeader>
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                    <Icon className="h-6 w-6 text-primary" />
+                  </div>
+                  <CardTitle className="text-lg">{service.label}</CardTitle>
+                  <CardDescription className="text-sm">{service.description}</CardDescription>
+                </CardHeader>
+                <CardContent className="flex-1 flex flex-col">
+                  <p className="text-3xl font-bold text-foreground mb-4">${service.price}</p>
+                  <ul className="space-y-2 mb-6 flex-1">
+                    {service.features.map((f) => (
+                      <li key={f} className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <CheckCircle className="h-4 w-4 text-primary shrink-0" />
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+                  <Link to={`/auth?service=${service.service_key}`}>
+                    <Button className="w-full">Purchase Now</Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       </section>
 
@@ -105,7 +105,7 @@ const Index = () => {
           <div className="grid md:grid-cols-4 gap-8 max-w-4xl mx-auto">
             {[
               { icon: CreditCard, title: "Choose & Pay", desc: "Select a service and pay via Binance or M-Pesa." },
-              { icon: Shield, title: "Upload Passport", desc: "Upload your passport photo for verification." },
+              { icon: Shield, title: "Upload Passport", desc: "Upload a clear photo from chest to head." },
               { icon: Clock, title: "We Process", desc: "Our team processes your order within 5 days." },
               { icon: CheckCircle, title: "Get Delivered", desc: "Download your documents from your dashboard." },
             ].map((step, i) => (
