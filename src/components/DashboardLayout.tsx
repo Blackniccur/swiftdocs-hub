@@ -18,6 +18,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
     { href: "/admin", label: "All Orders", icon: Users },
     { href: "/admin/payments", label: "All Payments", icon: CreditCard },
     { href: "/admin/pricing", label: "Pricing", icon: DollarSign },
+    { href: "/admin/chat", label: "Live Chat", icon: MessageSquare },
   ];
 
   const links = isAdmin ? [...clientLinks, ...adminLinks] : clientLinks;
