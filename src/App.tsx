@@ -15,6 +15,7 @@ import ContactSupport from "./pages/ContactSupport";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminPayments from "./pages/AdminPayments";
 import AdminPricing from "./pages/AdminPricing";
+import AdminChat from "./pages/AdminChat";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
