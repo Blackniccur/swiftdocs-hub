@@ -338,6 +338,13 @@ export type Database = {
         | "handshake_ai"
         | "mercor_ai"
         | "full_course"
+        | "mindtrift"
+        | "lilt_ai"
+        | "handshake_oscar"
+        | "project_hedgehog"
+        | "outlier_philippines"
+        | "outlier_uk"
+        | "handshake_helix"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -480,6 +487,13 @@ export const Constants = {
         "handshake_ai",
         "mercor_ai",
         "full_course",
+        "mindtrift",
+        "lilt_ai",
+        "handshake_oscar",
+        "project_hedgehog",
+        "outlier_philippines",
+        "outlier_uk",
+        "handshake_helix",
       ],
     },
   },
