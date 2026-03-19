@@ -9,10 +9,17 @@ export const iconMap: Record<string, LucideIcon> = {
 
 export const serviceLabels: Record<string, string> = {
   driving_license: "Driving License",
-  outlier_account: "Outlier Account",
-  handshake_ai: "Handshake AI",
+  outlier_account: "Outlier USA Profile",
+  handshake_ai: "Handshake Project Helix",
   mercor_ai: "Mercor AI",
   full_course: "Freelancing AI Course",
+  mindtrift: "Mindtrift Account",
+  lilt_ai: "Lilt AI Account",
+  handshake_oscar: "Handshake Project Oscar",
+  project_hedgehog: "Project Hedgehog",
+  outlier_philippines: "Outlier Philippines Profile",
+  outlier_uk: "Outlier UK Profile",
+  
 };
 
 export const statusLabels: Record<string, string> = {
