@@ -19,7 +19,7 @@ export const serviceLabels: Record<string, string> = {
   project_hedgehog: "Project Hedgehog",
   outlier_philippines: "Outlier Philippines Profile",
   outlier_uk: "Outlier UK Profile",
-  handshake_helix: "Handshake Project Helix",
+  
 };
 
 export const statusLabels: Record<string, string> = {
