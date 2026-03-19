@@ -10,7 +10,7 @@ export const iconMap: Record<string, LucideIcon> = {
 export const serviceLabels: Record<string, string> = {
   driving_license: "Driving License",
   outlier_account: "Outlier USA Profile",
-  handshake_ai: "Handshake AI",
+  handshake_ai: "Handshake Project Helix",
   mercor_ai: "Mercor AI",
   full_course: "Freelancing AI Course",
   mindtrift: "Mindtrift Account",
