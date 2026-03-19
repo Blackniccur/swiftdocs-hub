@@ -4,7 +4,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { MessageSquare, Send, X } from "lucide-react";
+import { MessageSquare, Send, X, Bot } from "lucide-react";
+
+const BOT_SENDER_ID = "00000000-0000-0000-0000-000000000000";
 
 interface ChatMessage {
   id: string;
@@ -27,11 +29,11 @@ const ChatWidget = ({ applicationId, inline }: ChatWidgetProps) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [sending, setSending] = useState(false);
+  const [botTyping, setBotTyping] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!open || !applicationId) return;
-    // Fetch existing messages
     supabase
       .from("chat_messages")
       .select("*")
@@ -41,7 +43,6 @@ const ChatWidget = ({ applicationId, inline }: ChatWidgetProps) => {
         if (data) setMessages(data as ChatMessage[]);
       });
 
-    // Mark unread messages as read
     if (user) {
       supabase
         .from("chat_messages")
@@ -52,7 +53,6 @@ const ChatWidget = ({ applicationId, inline }: ChatWidgetProps) => {
         .then(() => {});
     }
 
-    // Subscribe to realtime
     const channel = supabase
       .channel(`chat-${applicationId}`)
       .on(
@@ -69,7 +69,6 @@ const ChatWidget = ({ applicationId, inline }: ChatWidgetProps) => {
             if (prev.some((m) => m.id === msg.id)) return prev;
             return [...prev, msg];
           });
-          // Auto-mark as read if it's not from us
           if (user && msg.sender_id !== user.id) {
             supabase
               .from("chat_messages")
@@ -88,18 +87,41 @@ const ChatWidget = ({ applicationId, inline }: ChatWidgetProps) => {
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [messages, botTyping]);
 
   const handleSend = async () => {
     if (!newMessage.trim() || !user) return;
+    const messageText = newMessage.trim();
     setSending(true);
+
+    // Insert the user's message
     await supabase.from("chat_messages").insert({
       application_id: applicationId,
       sender_id: user.id,
-      message: newMessage.trim(),
+      message: messageText,
     });
     setNewMessage("");
     setSending(false);
+
+    // If user is NOT admin, trigger bot response
+    if (!isAdmin) {
+      setBotTyping(true);
+      try {
+        const { data, error } = await supabase.functions.invoke("chat-bot", {
+          body: {
+            message: messageText,
+            application_id: applicationId,
+            user_id: user.id,
+          },
+        });
+        if (error) console.error("Bot error:", error);
+        // Bot reply is inserted by the edge function and arrives via realtime
+      } catch (err) {
+        console.error("Bot invocation failed:", err);
+      } finally {
+        setBotTyping(false);
+      }
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -107,6 +129,12 @@ const ChatWidget = ({ applicationId, inline }: ChatWidgetProps) => {
       e.preventDefault();
       handleSend();
     }
+  };
+
+  const getSenderLabel = (senderId: string) => {
+    if (senderId === BOT_SENDER_ID) return "bot";
+    if (senderId === user?.id) return "me";
+    return "other";
   };
 
   const chatContent = (
@@ -122,17 +150,30 @@ const ChatWidget = ({ applicationId, inline }: ChatWidgetProps) => {
         </div>
       )}
       <ScrollArea className="flex-1 p-3">
-        {messages.length === 0 ? (
+        {messages.length === 0 && !botTyping ? (
           <p className="text-sm text-muted-foreground text-center py-8">
             No messages yet. Start the conversation!
           </p>
         ) : (
           <div className="space-y-2">
             {messages.map((msg) => {
-              const isMe = msg.sender_id === user?.id;
+              const label = getSenderLabel(msg.sender_id);
+              const isMe = label === "me";
+              const isBot = label === "bot";
               return (
                 <div key={msg.id} className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
-                  <div className={`max-w-[75%] rounded-lg px-3 py-2 text-sm ${isMe ? "bg-primary text-primary-foreground" : "bg-muted text-foreground"}`}>
+                  <div className={`max-w-[75%] rounded-lg px-3 py-2 text-sm ${isMe ? "bg-primary text-primary-foreground" : isBot ? "bg-accent text-accent-foreground" : "bg-muted text-foreground"}`}>
+                    {isBot && (
+                      <div className="flex items-center gap-1 mb-1">
+                        <Bot className="h-3 w-3" />
+                        <span className="text-[10px] font-medium">AccelDocs Bot</span>
+                      </div>
+                    )}
+                    {!isMe && !isBot && (
+                      <div className="mb-1">
+                        <span className="text-[10px] font-medium">Admin</span>
+                      </div>
+                    )}
                     <p className="break-words">{msg.message}</p>
                     <p className={`text-[10px] mt-1 ${isMe ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
                       {new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
@@ -141,6 +182,21 @@ const ChatWidget = ({ applicationId, inline }: ChatWidgetProps) => {
                 </div>
               );
             })}
+            {botTyping && (
+              <div className="flex justify-start">
+                <div className="bg-accent text-accent-foreground rounded-lg px-3 py-2 text-sm">
+                  <div className="flex items-center gap-1 mb-1">
+                    <Bot className="h-3 w-3" />
+                    <span className="text-[10px] font-medium">AccelDocs Bot</span>
+                  </div>
+                  <div className="flex gap-1">
+                    <span className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                    <span className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                    <span className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                  </div>
+                </div>
+              </div>
+            )}
             <div ref={bottomRef} />
           </div>
         )}
@@ -152,8 +208,9 @@ const ChatWidget = ({ applicationId, inline }: ChatWidgetProps) => {
           onChange={(e) => setNewMessage(e.target.value)}
           onKeyDown={handleKeyDown}
           className="text-sm"
+          disabled={botTyping}
         />
-        <Button size="icon" onClick={handleSend} disabled={sending || !newMessage.trim()}>
+        <Button size="icon" onClick={handleSend} disabled={sending || botTyping || !newMessage.trim()}>
           <Send className="h-4 w-4" />
         </Button>
       </div>
