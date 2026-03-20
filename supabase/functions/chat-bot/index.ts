@@ -58,7 +58,7 @@ serve(async (req) => {
       rejected: "Rejected",
     };
 
-    const systemPrompt = `You are AccelDocs Support Bot. You help clients with their orders.
+    const systemPrompt = `You are Melissa, a friendly and professional support assistant for AccelDocs. You help clients with their orders.
 
 Current order context:
 - Service: ${svcPrice?.label || app?.service_type || "Unknown"}

@@ -4,7 +4,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { MessageSquare, Send, X, Bot } from "lucide-react";
+import { MessageSquare, Send, X } from "lucide-react";
+import melissaAvatar from "@/assets/melissa-avatar.png";
 
 const BOT_SENDER_ID = "00000000-0000-0000-0000-000000000000";
 
@@ -19,7 +20,6 @@ interface ChatMessage {
 
 interface ChatWidgetProps {
   applicationId: string;
-  /** If true, shows inline (no floating bubble) */
   inline?: boolean;
 }
 
@@ -30,7 +30,35 @@ const ChatWidget = ({ applicationId, inline }: ChatWidgetProps) => {
   const [newMessage, setNewMessage] = useState("");
   const [sending, setSending] = useState(false);
   const [botTyping, setBotTyping] = useState(false);
+  const [adminOnline, setAdminOnline] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  // Track admin presence
+  useEffect(() => {
+    if (!user || !applicationId) return;
+
+    const presenceChannel = supabase.channel("admin-presence", {
+      config: { presence: { key: user.id } },
+    });
+
+    presenceChannel
+      .on("presence", { event: "sync" }, () => {
+        const state = presenceChannel.presenceState();
+        const hasAdmin = Object.values(state).some((presences: any) =>
+          presences.some((p: any) => p.is_admin === true)
+        );
+        setAdminOnline(hasAdmin);
+      })
+      .subscribe(async (status) => {
+        if (status === "SUBSCRIBED" && isAdmin) {
+          await presenceChannel.track({ is_admin: true });
+        }
+      });
+
+    return () => {
+      supabase.removeChannel(presenceChannel);
+    };
+  }, [user, applicationId, isAdmin]);
 
   useEffect(() => {
     if (!open || !applicationId) return;
@@ -94,7 +122,6 @@ const ChatWidget = ({ applicationId, inline }: ChatWidgetProps) => {
     const messageText = newMessage.trim();
     setSending(true);
 
-    // Insert the user's message
     await supabase.from("chat_messages").insert({
       application_id: applicationId,
       sender_id: user.id,
@@ -103,19 +130,17 @@ const ChatWidget = ({ applicationId, inline }: ChatWidgetProps) => {
     setNewMessage("");
     setSending(false);
 
-    // If user is NOT admin, trigger bot response
-    if (!isAdmin) {
+    // If client and no admin online, trigger Melissa bot
+    if (!isAdmin && !adminOnline) {
       setBotTyping(true);
       try {
-        const { data, error } = await supabase.functions.invoke("chat-bot", {
+        await supabase.functions.invoke("chat-bot", {
           body: {
             message: messageText,
             application_id: applicationId,
             user_id: user.id,
           },
         });
-        if (error) console.error("Bot error:", error);
-        // Bot reply is inserted by the edge function and arrives via realtime
       } catch (err) {
         console.error("Bot invocation failed:", err);
       } finally {
@@ -137,12 +162,20 @@ const ChatWidget = ({ applicationId, inline }: ChatWidgetProps) => {
     return "other";
   };
 
+  const MelissaTag = () => (
+    <div className="flex items-center gap-1.5 mb-1">
+      <img src={melissaAvatar} alt="Melissa" className="h-4 w-4 rounded-full object-cover" />
+      <span className="text-[10px] font-semibold text-foreground/70">Melissa</span>
+    </div>
+  );
+
   const chatContent = (
     <div className={`flex flex-col ${inline ? "h-80" : "h-96"} bg-background border rounded-lg shadow-lg overflow-hidden`}>
       {!inline && (
         <div className="flex items-center justify-between px-4 py-3 bg-primary text-primary-foreground">
           <span className="font-semibold text-sm flex items-center gap-2">
-            <MessageSquare className="h-4 w-4" /> Live Chat
+            <img src={melissaAvatar} alt="Melissa" className="h-6 w-6 rounded-full object-cover border border-primary-foreground/30" />
+            {adminOnline ? "Live Chat — Admin Online" : "Chat with Melissa"}
           </span>
           <Button variant="ghost" size="icon" className="h-6 w-6 text-primary-foreground hover:bg-primary/80" onClick={() => setOpen(false)}>
             <X className="h-4 w-4" />
@@ -151,9 +184,13 @@ const ChatWidget = ({ applicationId, inline }: ChatWidgetProps) => {
       )}
       <ScrollArea className="flex-1 p-3">
         {messages.length === 0 && !botTyping ? (
-          <p className="text-sm text-muted-foreground text-center py-8">
-            No messages yet. Start the conversation!
-          </p>
+          <div className="text-center py-8 space-y-2">
+            <img src={melissaAvatar} alt="Melissa" className="h-12 w-12 rounded-full mx-auto object-cover" />
+            <p className="text-sm font-medium text-foreground">Hi, I'm Melissa! 👋</p>
+            <p className="text-xs text-muted-foreground">
+              {adminOnline ? "An admin is online. How can we help?" : "How can I help you today?"}
+            </p>
+          </div>
         ) : (
           <div className="space-y-2">
             {messages.map((msg) => {
@@ -163,12 +200,7 @@ const ChatWidget = ({ applicationId, inline }: ChatWidgetProps) => {
               return (
                 <div key={msg.id} className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
                   <div className={`max-w-[75%] rounded-lg px-3 py-2 text-sm ${isMe ? "bg-primary text-primary-foreground" : isBot ? "bg-accent text-accent-foreground" : "bg-muted text-foreground"}`}>
-                    {isBot && (
-                      <div className="flex items-center gap-1 mb-1">
-                        <Bot className="h-3 w-3" />
-                        <span className="text-[10px] font-medium">AccelDocs Bot</span>
-                      </div>
-                    )}
+                    {isBot && <MelissaTag />}
                     {!isMe && !isBot && (
                       <div className="mb-1">
                         <span className="text-[10px] font-medium">Admin</span>
@@ -185,10 +217,7 @@ const ChatWidget = ({ applicationId, inline }: ChatWidgetProps) => {
             {botTyping && (
               <div className="flex justify-start">
                 <div className="bg-accent text-accent-foreground rounded-lg px-3 py-2 text-sm">
-                  <div className="flex items-center gap-1 mb-1">
-                    <Bot className="h-3 w-3" />
-                    <span className="text-[10px] font-medium">AccelDocs Bot</span>
-                  </div>
+                  <MelissaTag />
                   <div className="flex gap-1">
                     <span className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
                     <span className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
@@ -202,6 +231,11 @@ const ChatWidget = ({ applicationId, inline }: ChatWidgetProps) => {
         )}
       </ScrollArea>
       <div className="flex items-center gap-2 p-3 border-t">
+        {!adminOnline && !isAdmin && (
+          <div className="absolute bottom-14 left-3 right-3">
+            <p className="text-[10px] text-muted-foreground text-center">Melissa is here to help • Admin offline</p>
+          </div>
+        )}
         <Input
           placeholder="Type a message..."
           value={newMessage}
@@ -229,9 +263,9 @@ const ChatWidget = ({ applicationId, inline }: ChatWidgetProps) => {
       {!open && (
         <button
           onClick={() => setOpen(true)}
-          className="fixed bottom-4 right-4 z-50 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:bg-primary/90 transition-colors"
+          className="fixed bottom-4 right-4 z-50 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:bg-primary/90 transition-colors overflow-hidden"
         >
-          <MessageSquare className="h-6 w-6" />
+          <img src={melissaAvatar} alt="Melissa" className="h-full w-full object-cover" />
         </button>
       )}
     </>
