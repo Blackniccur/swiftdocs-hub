@@ -49,19 +49,31 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <div className="border-b bg-card">
+    <div className="min-h-screen bg-background flex flex-col relative">
+      <img
+        src={heroBg}
+        alt=""
+        aria-hidden="true"
+        width={1536}
+        height={1024}
+        className="absolute inset-0 h-full w-full object-cover opacity-40"
+      />
+      <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background" />
+
+      <div className="relative border-b border-border/60 bg-background/70 backdrop-blur">
         <div className="container mx-auto px-4 py-4 flex items-center gap-2">
-          <Shield className="h-8 w-8 text-primary" />
-          <h1 className="text-xl font-bold text-foreground">AccelDocs</h1>
+          <div className="h-9 w-9 rounded-md bg-primary/15 border border-primary/40 flex items-center justify-center">
+            <Terminal className="h-5 w-5 text-primary" />
+          </div>
+          <h1 className="text-lg font-bold tracking-[0.2em] text-primary uppercase">AccelDocs</h1>
         </div>
       </div>
 
-      <div className="flex-1 flex items-center justify-center p-4">
+      <div className="relative flex-1 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-foreground mb-2">Welcome to AccelDocs</h2>
-            <p className="text-muted-foreground">Your marketplace for document & account services</p>
+            <h2 className="text-3xl font-bold text-foreground mb-2 tracking-tight">Secure Access</h2>
+            <p className="text-muted-foreground text-sm">Marketplace for document &amp; account services</p>
           </div>
 
           <div className="flex flex-wrap justify-center gap-4 mb-8">
@@ -72,14 +84,15 @@ const Auth = () => {
               { icon: Briefcase, label: "Mercor AI" },
               { icon: BookOpen, label: "AI Course" },
             ].map((s) => (
-              <div key={s.label} className="flex items-center gap-1.5 text-sm text-muted-foreground">
+              <div key={s.label} className="flex items-center gap-1.5 text-xs text-muted-foreground">
                 <s.icon className="h-4 w-4 text-primary" />
                 <span>{s.label}</span>
               </div>
             ))}
           </div>
 
-          <Card>
+          <Card className="border-border/70 bg-card/80 backdrop-blur-md shadow-[var(--shadow-panel)]">
+
             <Tabs defaultValue="signin">
               <CardHeader>
                 <TabsList className="grid w-full grid-cols-2">
