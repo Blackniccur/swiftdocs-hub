@@ -7,7 +7,9 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Shield, Car, Briefcase, Bot, BookOpen } from "lucide-react";
+import { Car, Briefcase, Bot, BookOpen, Terminal } from "lucide-react";
+import heroBg from "@/assets/dark-hero.jpg";
+
 
 const Auth = () => {
   const [email, setEmail] = useState("");
