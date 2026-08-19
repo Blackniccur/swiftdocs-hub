@@ -30,56 +30,77 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Nav */}
-      <header className="border-b bg-card sticky top-0 z-50">
+      <header className="border-b border-border/60 bg-background/80 backdrop-blur sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Shield className="h-8 w-8 text-primary" />
-            <span className="text-xl font-bold text-foreground">AccelDocs</span>
+            <div className="h-9 w-9 rounded-md bg-primary/15 border border-primary/40 flex items-center justify-center">
+              <Terminal className="h-5 w-5 text-primary" />
+            </div>
+            <span className="text-lg font-bold tracking-[0.2em] text-primary uppercase">AccelDocs</span>
           </div>
           <div className="flex items-center gap-3">
             <Link to="/auth">
-              <Button variant="outline" size="sm">Sign In</Button>
+              <Button variant="outline" size="sm">Login</Button>
             </Link>
             <Link to="/auth">
-              <Button size="sm">Get Started</Button>
+              <Button size="sm">Create Account</Button>
             </Link>
           </div>
         </div>
       </header>
 
       {/* Hero */}
-      <section className="container mx-auto px-4 py-16 md:py-24 text-center">
-        <h1 className="text-3xl md:text-5xl font-bold text-foreground mb-4 max-w-3xl mx-auto leading-tight">
-          Your One-Stop Marketplace for Document & Account Services
-        </h1>
-        <p className="text-base md:text-lg text-muted-foreground mb-8 max-w-xl mx-auto">
-          Purchase driving license processing, Outlier, Handshake AI, Mercor AI accounts, and freelancing courses. Pay with Binance or M-Pesa.
-        </p>
-        <Link to="/auth">
-          <Button size="lg" className="text-base px-8">Browse Services</Button>
-        </Link>
+      <section className="relative overflow-hidden">
+        <img
+          src={heroBg}
+          alt="Secure digital marketplace background"
+          width={1536}
+          height={1024}
+          className="absolute inset-0 h-full w-full object-cover opacity-45"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/70 to-background" />
+        <div className="relative container mx-auto px-4 py-20 md:py-32 text-center">
+          <p className="text-xs tracking-[0.35em] uppercase text-primary mb-4">Invite-only marketplace</p>
+          <h1 className="text-4xl md:text-6xl font-extrabold text-foreground mb-5 max-w-3xl mx-auto leading-[1.05] tracking-tight">
+            Documents &amp; AI Accounts, Delivered Fast
+          </h1>
+          <p className="text-sm md:text-base text-muted-foreground mb-8 max-w-xl mx-auto">
+            Driving license processing, Outlier, Handshake AI and Mercor AI accounts. Top up with Binance or M-Pesa and track every order in your dashboard.
+          </p>
+          <div className="flex items-center justify-center gap-3">
+            <Link to="/auth">
+              <Button size="lg" className="text-base px-8">Browse Services</Button>
+            </Link>
+            <Link to="/auth">
+              <Button size="lg" variant="outline" className="text-base px-8">Login</Button>
+            </Link>
+          </div>
+        </div>
       </section>
 
       {/* Pricing Table */}
-      <section className="container mx-auto px-4 py-12">
-        <h2 className="text-2xl font-bold text-foreground text-center mb-3">Our Services & Pricing</h2>
-        <p className="text-muted-foreground text-center mb-10 max-w-lg mx-auto">
+      <section className="container mx-auto px-4 py-16">
+        <h2 className="text-2xl md:text-3xl font-bold text-foreground text-center mb-3">Services &amp; Pricing</h2>
+        <p className="text-muted-foreground text-center mb-10 max-w-lg mx-auto text-sm">
           Transparent pricing — pick a service and get started today.
         </p>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
           {services.map((service) => {
             const Icon = iconMap[service.icon_name] || Shield;
             return (
-              <Card key={service.id} className="relative overflow-hidden hover:shadow-lg transition-shadow flex flex-col">
+              <Card
+                key={service.id}
+                className="relative overflow-hidden border-border/70 bg-card/70 backdrop-blur transition-all hover:border-primary/50 hover:shadow-[var(--shadow-glow)] flex flex-col"
+              >
                 <CardHeader>
-                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                  <div className="w-12 h-12 rounded-md bg-primary/10 border border-primary/30 flex items-center justify-center mb-3">
                     <Icon className="h-6 w-6 text-primary" />
                   </div>
                   <CardTitle className="text-lg">{service.label}</CardTitle>
                   <CardDescription className="text-sm">{service.description}</CardDescription>
                 </CardHeader>
                 <CardContent className="flex-1 flex flex-col">
-                  <p className="text-3xl font-bold text-foreground mb-4">${service.price}</p>
+                  <p className="text-3xl font-bold text-primary mb-4">${service.price}</p>
                   <ul className="space-y-2 mb-6 flex-1">
                     {service.features.map((f) => (
                       <li key={f} className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -97,6 +118,7 @@ const Index = () => {
           })}
         </div>
       </section>
+
 
       {/* How it works */}
       <section className="bg-muted/50 py-16">
