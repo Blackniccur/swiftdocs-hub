@@ -3,8 +3,9 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Shield, Clock, CheckCircle, CreditCard, Headphones } from "lucide-react";
+import { Shield, Clock, CheckCircle, CreditCard, Headphones, Terminal } from "lucide-react";
 import { iconMap, type ServicePrice } from "@/lib/services";
+import heroBg from "@/assets/dark-hero.jpg";
 
 const Index = () => {
   const [services, setServices] = useState<ServicePrice[]>([]);
