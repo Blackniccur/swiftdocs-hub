@@ -1,7 +1,10 @@
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useBalance } from "@/hooks/useBalance";
+import NotificationBell from "@/components/NotificationBell";
 import { Button } from "@/components/ui/button";
-import { Shield, LayoutDashboard, ShoppingBag, CreditCard, Headphones, LogOut, Users, DollarSign, MessageSquare } from "lucide-react";
+import { Shield, LayoutDashboard, ShoppingBag, CreditCard, Headphones, LogOut, Users, DollarSign, MessageSquare, Wallet } from "lucide-react";
+
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const { user, isAdmin, signOut } = useAuth();
