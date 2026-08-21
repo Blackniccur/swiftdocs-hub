@@ -170,10 +170,37 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          is_read: boolean
+          message: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message?: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       payments: {
         Row: {
           amount: number | null
-          application_id: string
+          application_id: string | null
           created_at: string
           id: string
           payment_method: string
@@ -186,7 +213,7 @@ export type Database = {
         }
         Insert: {
           amount?: number | null
-          application_id: string
+          application_id?: string | null
           created_at?: string
           id?: string
           payment_method?: string
@@ -199,7 +226,7 @@ export type Database = {
         }
         Update: {
           amount?: number | null
-          application_id?: string
+          application_id?: string | null
           created_at?: string
           id?: string
           payment_method?: string
@@ -223,6 +250,7 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          balance: number
           created_at: string
           full_name: string
           id: string
@@ -232,6 +260,7 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          balance?: number
           created_at?: string
           full_name?: string
           id?: string
@@ -241,6 +270,7 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          balance?: number
           created_at?: string
           full_name?: string
           id?: string
@@ -292,6 +322,47 @@ export type Database = {
         }
         Relationships: []
       }
+      transactions: {
+        Row: {
+          amount: number
+          balance_after: number
+          created_at: string
+          description: string
+          id: string
+          payment_id: string | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          balance_after?: number
+          created_at?: string
+          description?: string
+          id?: string
+          payment_id?: string | null
+          type?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          balance_after?: number
+          created_at?: string
+          description?: string
+          id?: string
+          payment_id?: string | null
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           id: string
@@ -321,6 +392,15 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      review_payment: {
+        Args: {
+          _amount?: number
+          _approve: boolean
+          _note?: string
+          _payment_id: string
+        }
+        Returns: undefined
       }
     }
     Enums: {

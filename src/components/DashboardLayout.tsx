@@ -1,11 +1,16 @@
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useBalance } from "@/hooks/useBalance";
+import NotificationBell from "@/components/NotificationBell";
 import { Button } from "@/components/ui/button";
-import { Shield, LayoutDashboard, ShoppingBag, CreditCard, Headphones, LogOut, Users, DollarSign, MessageSquare } from "lucide-react";
+import { Shield, LayoutDashboard, ShoppingBag, CreditCard, Headphones, LogOut, Users, DollarSign, MessageSquare, Wallet } from "lucide-react";
+
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const { user, isAdmin, signOut } = useAuth();
+  const { balance } = useBalance();
   const location = useLocation();
+
 
   const clientLinks = [
     { href: "/dashboard", label: "My Orders", icon: LayoutDashboard },
@@ -31,15 +36,24 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
             <Shield className="h-7 w-7 text-primary" />
             <span className="font-bold text-foreground text-lg">AccelDocs</span>
           </Link>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Link
+              to="/dashboard/payments"
+              className="flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary"
+            >
+              <Wallet className="h-3.5 w-3.5" />
+              ${balance.toFixed(2)}
+            </Link>
             <span className="text-sm text-muted-foreground hidden sm:block">{user?.email}</span>
             {isAdmin && (
               <span className="text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded-full font-medium">Admin</span>
             )}
+            <NotificationBell />
             <Button variant="ghost" size="icon" onClick={signOut}>
               <LogOut className="h-4 w-4" />
             </Button>
           </div>
+
         </div>
       </header>
 
