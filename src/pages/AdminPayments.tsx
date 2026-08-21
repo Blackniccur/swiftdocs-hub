@@ -4,17 +4,27 @@ import { useAuth } from "@/hooks/useAuth";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Navigate } from "react-router-dom";
 import type { Tables } from "@/integrations/supabase/types";
 
+type PaymentRow = Tables<"payments"> & { profile_name?: string; profile_balance?: number };
+
 const AdminPayments = () => {
   const { isAdmin, loading: authLoading } = useAuth();
   const { toast } = useToast();
-  const [payments, setPayments] = useState<(Tables<"payments"> & { profile_name?: string })[]>([]);
+  const [payments, setPayments] = useState<PaymentRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [active, setActive] = useState<PaymentRow | null>(null);
+  const [reviewAmount, setReviewAmount] = useState("");
+  const [note, setNote] = useState("");
+  const [proofUrl, setProofUrl] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     if (!isAdmin) return;
@@ -31,22 +41,55 @@ const AdminPayments = () => {
       const userIds = [...new Set(rawPayments.map((p) => p.user_id))];
       const { data: profiles } = await supabase
         .from("profiles")
-        .select("user_id, full_name")
+        .select("user_id, full_name, balance")
         .in("user_id", userIds);
-      const profileMap = new Map(profiles?.map((p) => [p.user_id, p.full_name]) || []);
-      setPayments(rawPayments.map((p) => ({ ...p, profile_name: profileMap.get(p.user_id) || "—" })));
+      const profileMap = new Map(profiles?.map((p) => [p.user_id, p]) || []);
+      setPayments(
+        rawPayments.map((p) => ({
+          ...p,
+          profile_name: profileMap.get(p.user_id)?.full_name || "—",
+          profile_balance: Number(profileMap.get(p.user_id)?.balance ?? 0),
+        }))
+      );
     }
     setLoading(false);
   };
 
-  const handleVerify = async (id: string, status: "verified" | "rejected") => {
-    const { error } = await supabase.from("payments").update({ status }).eq("id", id);
+  const openReview = async (pay: PaymentRow) => {
+    setActive(pay);
+    setReviewAmount(pay.amount ? String(pay.amount) : "");
+    setNote("");
+    setProofUrl(null);
+    if (pay.proof_file_path) {
+      const { data } = await supabase.storage.from("payment-proofs").createSignedUrl(pay.proof_file_path, 600);
+      setProofUrl(data?.signedUrl ?? null);
+    }
+  };
+
+  const submitReview = async (approve: boolean) => {
+    if (!active) return;
+    if (approve && (!Number(reviewAmount) || Number(reviewAmount) <= 0)) {
+      toast({ title: "Enter a valid amount to credit", variant: "destructive" });
+      return;
+    }
+    setBusy(true);
+    const { error } = await supabase.rpc("review_payment", {
+      _payment_id: active.id,
+      _approve: approve,
+      _amount: approve ? Number(reviewAmount) : null,
+      _note: note,
+    });
+    setBusy(false);
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
-    } else {
-      toast({ title: `Payment ${status}` });
-      fetchPayments();
+      return;
     }
+    toast({
+      title: approve ? "Payment approved" : "Payment rejected",
+      description: approve ? `Client balance credited with $${Number(reviewAmount).toFixed(2)}.` : "Client has been notified.",
+    });
+    setActive(null);
+    fetchPayments();
   };
 
   if (authLoading) return null;
@@ -54,11 +97,11 @@ const AdminPayments = () => {
 
   return (
     <DashboardLayout>
-      <div className="max-w-5xl mx-auto space-y-6">
-        <h1 className="text-2xl font-bold text-foreground">Admin — All Payments</h1>
+      <div className="max-w-6xl mx-auto space-y-6">
+        <h1 className="text-2xl font-bold text-foreground">Admin — Payment Verification</h1>
 
         <Card>
-          <CardContent className="p-0">
+          <CardContent className="p-0 overflow-x-auto">
             {loading ? (
               <div className="flex justify-center py-12">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
@@ -68,7 +111,8 @@ const AdminPayments = () => {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Client</TableHead>
-                    <TableHead>App ID</TableHead>
+                    <TableHead>Balance</TableHead>
+                    <TableHead>Amount</TableHead>
                     <TableHead>Method</TableHead>
                     <TableHead>Ref #</TableHead>
                     <TableHead>Status</TableHead>
@@ -80,7 +124,8 @@ const AdminPayments = () => {
                   {payments.map((pay) => (
                     <TableRow key={pay.id}>
                       <TableCell>{pay.profile_name}</TableCell>
-                      <TableCell className="font-mono text-xs">{pay.application_id.slice(0, 8)}</TableCell>
+                      <TableCell>${(pay.profile_balance ?? 0).toFixed(2)}</TableCell>
+                      <TableCell>{pay.amount ? `$${Number(pay.amount).toFixed(2)}` : "—"}</TableCell>
                       <TableCell className="capitalize">{pay.payment_method}</TableCell>
                       <TableCell>{pay.reference_number || "—"}</TableCell>
                       <TableCell>
@@ -94,22 +139,15 @@ const AdminPayments = () => {
                       </TableCell>
                       <TableCell className="text-sm">{new Date(pay.created_at).toLocaleDateString()}</TableCell>
                       <TableCell>
-                        {pay.status === "pending" && (
-                          <div className="flex gap-1">
-                            <Button size="sm" variant="outline" onClick={() => handleVerify(pay.id, "verified")}>
-                              Verify
-                            </Button>
-                            <Button size="sm" variant="destructive" onClick={() => handleVerify(pay.id, "rejected")}>
-                              Reject
-                            </Button>
-                          </div>
-                        )}
+                        <Button size="sm" variant="outline" onClick={() => openReview(pay)}>
+                          {pay.status === "pending" ? "Review" : "View"}
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
                   {payments.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                      <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                         No payments found.
                       </TableCell>
                     </TableRow>
@@ -120,6 +158,60 @@ const AdminPayments = () => {
           </CardContent>
         </Card>
       </div>
+
+      <Dialog open={!!active} onOpenChange={(open) => !open && setActive(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Review payment proof</DialogTitle>
+            <DialogDescription>
+              {active?.profile_name} — current balance ${(active?.profile_balance ?? 0).toFixed(2)}
+            </DialogDescription>
+          </DialogHeader>
+
+          {proofUrl ? (
+            <a href={proofUrl} target="_blank" rel="noreferrer" className="block">
+              <img src={proofUrl} alt="Payment proof receipt" className="max-h-64 w-full object-contain rounded border" />
+              <span className="text-xs text-primary underline">Open full receipt</span>
+            </a>
+          ) : (
+            <p className="text-sm text-muted-foreground">No receipt preview available.</p>
+          )}
+
+          <div className="space-y-2">
+            <Label htmlFor="credit">Amount to credit (USD)</Label>
+            <Input
+              id="credit"
+              type="number"
+              min="1"
+              step="0.01"
+              value={reviewAmount}
+              onChange={(e) => setReviewAmount(e.target.value)}
+              disabled={active?.status !== "pending"}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="note">Note to client (optional)</Label>
+            <Input
+              id="note"
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder="Reason or reference"
+              disabled={active?.status !== "pending"}
+            />
+          </div>
+
+          {active?.status === "pending" && (
+            <div className="flex gap-2">
+              <Button disabled={busy} onClick={() => submitReview(true)}>
+                Approve & credit balance
+              </Button>
+              <Button variant="destructive" disabled={busy} onClick={() => submitReview(false)}>
+                Reject
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 };
