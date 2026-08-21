@@ -8,7 +8,9 @@ import { Shield, LayoutDashboard, ShoppingBag, CreditCard, Headphones, LogOut, U
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const { user, isAdmin, signOut } = useAuth();
+  const { balance } = useBalance();
   const location = useLocation();
+
 
   const clientLinks = [
     { href: "/dashboard", label: "My Orders", icon: LayoutDashboard },
