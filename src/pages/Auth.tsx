@@ -22,7 +22,7 @@ const Auth = () => {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -33,10 +33,14 @@ const Auth = () => {
     setLoading(false);
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
+    } else if (data.session) {
+      toast({ title: "Welcome to AccelDocs!", description: "Your account is ready." });
+      navigate("/dashboard");
     } else {
-      toast({ title: "Account created!", description: "Check your email to verify your account." });
+      toast({ title: "Account created!", description: "You can now sign in." });
     }
   };
+
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
