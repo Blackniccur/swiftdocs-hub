@@ -22,7 +22,24 @@ export const serviceLabels: Record<string, string> = {
   
 };
 
+export const serviceCategories: Record<string, string> = {
+  driving_license: "Documents",
+  outlier_account: "AI Platforms",
+  outlier_philippines: "AI Platforms",
+  outlier_uk: "AI Platforms",
+  handshake_ai: "AI Platforms",
+  handshake_oscar: "AI Platforms",
+  project_hedgehog: "AI Platforms",
+  mercor_ai: "AI Platforms",
+  mindtrift: "AI Platforms",
+  lilt_ai: "AI Platforms",
+  full_course: "Courses",
+};
+
+export const categoryList = ["All", "Documents", "AI Platforms", "Courses"];
+
 export const statusLabels: Record<string, string> = {
+
   submitted: "Order Placed",
   documents_review: "Under Review",
   processing: "Processing",
