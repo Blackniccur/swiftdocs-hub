@@ -116,7 +116,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
 
         <div className="md:hidden fixed bottom-0 left-0 right-0 bg-card border-t z-50 px-2 py-1">
           <div className="flex justify-around">
-            {links.slice(0, 4).map((link) => {
+            {mobileLinks.map((link) => {
               const isActive = location.pathname === link.href;
               return (
                 <Link
