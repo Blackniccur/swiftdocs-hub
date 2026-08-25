@@ -37,21 +37,32 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-            <Route path="/dashboard/new-application" element={<ProtectedRoute><NewApplication /></ProtectedRoute>} />
-            <Route path="/dashboard/application/:id" element={<ProtectedRoute><ApplicationDetail /></ProtectedRoute>} />
-            <Route path="/dashboard/payments" element={<ProtectedRoute><Payments /></ProtectedRoute>} />
-            <Route path="/dashboard/support" element={<ProtectedRoute><ContactSupport /></ProtectedRoute>} />
-            <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
-            <Route path="/admin/payments" element={<ProtectedRoute><AdminPayments /></ProtectedRoute>} />
-            <Route path="/admin/pricing" element={<ProtectedRoute><AdminPricing /></ProtectedRoute>} />
-            <Route path="/admin/chat" element={<ProtectedRoute><AdminChat /></ProtectedRoute>} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <CartProvider>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+              <Route path="/dashboard/marketplace" element={<ProtectedRoute><Marketplace /></ProtectedRoute>} />
+              <Route path="/dashboard/balance" element={<ProtectedRoute><Balance /></ProtectedRoute>} />
+              <Route path="/dashboard/transfer" element={<ProtectedRoute><Transfer /></ProtectedRoute>} />
+              <Route path="/dashboard/escrow" element={<ProtectedRoute><Escrow /></ProtectedRoute>} />
+              <Route path="/dashboard/delivery" element={<ProtectedRoute><DeliveryCenter /></ProtectedRoute>} />
+              <Route path="/dashboard/news" element={<ProtectedRoute><News /></ProtectedRoute>} />
+              <Route path="/dashboard/referral" element={<ProtectedRoute><Referral /></ProtectedRoute>} />
+              <Route path="/dashboard/new-application" element={<ProtectedRoute><NewApplication /></ProtectedRoute>} />
+              <Route path="/dashboard/application/:id" element={<ProtectedRoute><ApplicationDetail /></ProtectedRoute>} />
+              <Route path="/dashboard/payments" element={<ProtectedRoute><Payments /></ProtectedRoute>} />
+              <Route path="/dashboard/support" element={<ProtectedRoute><ContactSupport /></ProtectedRoute>} />
+              <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+              <Route path="/admin/payments" element={<ProtectedRoute><AdminPayments /></ProtectedRoute>} />
+              <Route path="/admin/pricing" element={<ProtectedRoute><AdminPricing /></ProtectedRoute>} />
+              <Route path="/admin/escrow" element={<ProtectedRoute><AdminEscrow /></ProtectedRoute>} />
+              <Route path="/admin/chat" element={<ProtectedRoute><AdminChat /></ProtectedRoute>} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </CartProvider>
         </AuthProvider>
+
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
