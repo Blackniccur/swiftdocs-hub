@@ -72,6 +72,14 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
               <Wallet className="h-3.5 w-3.5" />
               ${balance.toFixed(2)}
             </Link>
+            <Link to="/dashboard/marketplace" className="relative inline-flex h-9 w-9 items-center justify-center rounded-md hover:bg-accent">
+              <ShoppingCart className="h-4 w-4" />
+              {count > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 h-4 min-w-4 px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
+                  {count}
+                </span>
+              )}
+            </Link>
             <span className="text-sm text-muted-foreground hidden sm:block">{user?.email}</span>
             {isAdmin && (
               <span className="text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded-full font-medium">Admin</span>
