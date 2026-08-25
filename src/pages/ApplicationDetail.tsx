@@ -121,6 +121,22 @@ const ApplicationDetail = () => {
           </CardContent>
         </Card>
 
+        {/* Order timeline */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Order Timeline</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <OrderTimeline
+              application={application}
+              payments={payments}
+              documents={documents}
+              deliverables={deliverables}
+            />
+          </CardContent>
+        </Card>
+
+
         {/* Deliverables from admin */}
         <Card>
           <CardHeader>
