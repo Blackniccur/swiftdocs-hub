@@ -1,32 +1,60 @@
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useBalance } from "@/hooks/useBalance";
+import { useCart } from "@/context/CartContext";
 import NotificationBell from "@/components/NotificationBell";
 import { Button } from "@/components/ui/button";
-import { Shield, LayoutDashboard, ShoppingBag, CreditCard, Headphones, LogOut, Users, DollarSign, MessageSquare, Wallet } from "lucide-react";
+import {
+  Shield,
+  Wallet,
+  Store,
+  CreditCard,
+  Send,
+  Lock,
+  LayoutDashboard,
+  PackageOpen,
+  Newspaper,
+  Gift,
+  Headphones,
+  LogOut,
+  Users,
+  DollarSign,
+  MessageSquare,
+  ShoppingCart,
+} from "lucide-react";
 
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const { user, isAdmin, signOut } = useAuth();
   const { balance } = useBalance();
+  const { count } = useCart();
   const location = useLocation();
 
 
   const clientLinks = [
-    { href: "/dashboard", label: "My Orders", icon: LayoutDashboard },
-    { href: "/dashboard/new-application", label: "Purchase", icon: ShoppingBag },
-    { href: "/dashboard/payments", label: "Payments", icon: CreditCard },
+    { href: "/dashboard/balance", label: "Balance", icon: Wallet },
+    { href: "/dashboard/marketplace", label: "Marketplace", icon: Store },
+    { href: "/dashboard/payments", label: "Deposit", icon: CreditCard },
+    { href: "/dashboard/transfer", label: "Transfer", icon: Send },
+    { href: "/dashboard/escrow", label: "Escrow", icon: Lock },
+    { href: "/dashboard", label: "Order History", icon: LayoutDashboard },
+    { href: "/dashboard/delivery", label: "Delivery Center", icon: PackageOpen },
+    { href: "/dashboard/news", label: "News", icon: Newspaper },
+    { href: "/dashboard/referral", label: "Referral", icon: Gift },
     { href: "/dashboard/support", label: "Support", icon: Headphones },
   ];
 
   const adminLinks = [
     { href: "/admin", label: "All Orders", icon: Users },
     { href: "/admin/payments", label: "All Payments", icon: CreditCard },
+    { href: "/admin/escrow", label: "Escrow Admin", icon: Lock },
     { href: "/admin/pricing", label: "Pricing", icon: DollarSign },
     { href: "/admin/chat", label: "Live Chat", icon: MessageSquare },
   ];
 
   const links = isAdmin ? [...clientLinks, ...adminLinks] : clientLinks;
+  const mobileLinks = [clientLinks[1], clientLinks[0], clientLinks[5], clientLinks[6]];
+
 
   return (
     <div className="min-h-screen bg-background">
@@ -43,6 +71,14 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
             >
               <Wallet className="h-3.5 w-3.5" />
               ${balance.toFixed(2)}
+            </Link>
+            <Link to="/dashboard/marketplace" className="relative inline-flex h-9 w-9 items-center justify-center rounded-md hover:bg-accent">
+              <ShoppingCart className="h-4 w-4" />
+              {count > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 h-4 min-w-4 px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
+                  {count}
+                </span>
+              )}
             </Link>
             <span className="text-sm text-muted-foreground hidden sm:block">{user?.email}</span>
             {isAdmin && (
@@ -80,7 +116,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
 
         <div className="md:hidden fixed bottom-0 left-0 right-0 bg-card border-t z-50 px-2 py-1">
           <div className="flex justify-around">
-            {links.slice(0, 4).map((link) => {
+            {mobileLinks.map((link) => {
               const isActive = location.pathname === link.href;
               return (
                 <Link
