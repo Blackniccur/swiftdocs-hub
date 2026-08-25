@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/hooks/useAuth";
+import { CartProvider } from "@/context/CartContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -12,11 +13,20 @@ import NewApplication from "./pages/NewApplication";
 import ApplicationDetail from "./pages/ApplicationDetail";
 import Payments from "./pages/Payments";
 import ContactSupport from "./pages/ContactSupport";
+import Marketplace from "./pages/Marketplace";
+import Balance from "./pages/Balance";
+import Transfer from "./pages/Transfer";
+import Escrow from "./pages/Escrow";
+import DeliveryCenter from "./pages/DeliveryCenter";
+import News from "./pages/News";
+import Referral from "./pages/Referral";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminPayments from "./pages/AdminPayments";
 import AdminPricing from "./pages/AdminPricing";
 import AdminChat from "./pages/AdminChat";
+import AdminEscrow from "./pages/AdminEscrow";
 import NotFound from "./pages/NotFound";
+
 
 const queryClient = new QueryClient();
 
