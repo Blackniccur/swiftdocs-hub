@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Card, CardContent as _CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import DashboardLayout from "@/components/DashboardLayout";
@@ -252,14 +251,11 @@ const AdminPayments = () => {
             </DialogDescription>
           </DialogHeader>
 
-          {proofUrl ? (
-            <a href={proofUrl} target="_blank" rel="noreferrer" className="block">
-              <img src={proofUrl} alt="Payment proof receipt" className="max-h-64 w-full object-contain rounded border" />
-              <span className="text-xs text-primary underline">Open full receipt</span>
-            </a>
-          ) : (
-            <p className="text-sm text-muted-foreground">No receipt preview available.</p>
-          )}
+          <p className="text-sm text-muted-foreground">
+            Payment method: <span className="capitalize">{active?.payment_method}</span>
+            {active?.reference_number ? ` — Ref: ${active.reference_number}` : ""}
+          </p>
+
 
           <div className="space-y-2">
             <Label htmlFor="credit">Amount to credit (USD)</Label>
