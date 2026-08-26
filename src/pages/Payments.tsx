@@ -16,7 +16,6 @@ import type { Tables } from "@/integrations/supabase/types";
 
 const paymentMethods = [
   { value: "binance", label: "Binance (Crypto)" },
-  { value: "mpesa", label: "M-Pesa" },
 ];
 
 const Payments = () => {
@@ -109,6 +108,8 @@ const Payments = () => {
             <p className="text-muted-foreground">
               <strong>Binance:</strong> send to wallet <code className="bg-muted px-1 rounded">0x1234...abcd</code>
             </p>
+            <p className="text-muted-foreground">After paying, submit your amount and reference below for verification.</p>
+          </CardContent>
         </Card>
 
         <Card>
@@ -168,7 +169,7 @@ const Payments = () => {
                   id="ref"
                   value={referenceNumber}
                   onChange={(e) => setReferenceNumber(e.target.value)}
-                  placeholder="e.g. TXN-123456 or M-Pesa code"
+                  placeholder="e.g. Binance transaction ID"
                 />
               </div>
               <Button type="submit" disabled={submitting || !paymentMethod || !amount}>
