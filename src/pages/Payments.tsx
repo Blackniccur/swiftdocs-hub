@@ -109,8 +109,6 @@ const Payments = () => {
             <p className="text-muted-foreground">
               <strong>Binance:</strong> send to wallet <code className="bg-muted px-1 rounded">0x1234...abcd</code>
             </p>
-            <p className="text-muted-foreground">After paying, submit your amount and reference below for verification.</p>
-          </CardContent>
         </Card>
 
         <Card>
