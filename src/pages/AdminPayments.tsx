@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Card, CardContent as _CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import DashboardLayout from "@/components/DashboardLayout";
@@ -23,8 +24,12 @@ const AdminPayments = () => {
   const [active, setActive] = useState<PaymentRow | null>(null);
   const [reviewAmount, setReviewAmount] = useState("");
   const [note, setNote] = useState("");
-  const [proofUrl, setProofUrl] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [creditUserId, setCreditUserId] = useState("");
+  const [creditAmount, setCreditAmount] = useState("");
+  const [creditDesc, setCreditDesc] = useState("");
+  const [creditType, setCreditType] = useState<"credit" | "debit">("credit");
+  const [crediting, setCrediting] = useState(false);
 
   useEffect(() => {
     if (!isAdmin) return;
@@ -55,15 +60,10 @@ const AdminPayments = () => {
     setLoading(false);
   };
 
-  const openReview = async (pay: PaymentRow) => {
+  const openReview = (pay: PaymentRow) => {
     setActive(pay);
     setReviewAmount(pay.amount ? String(pay.amount) : "");
     setNote("");
-    setProofUrl(null);
-    if (pay.proof_file_path) {
-      const { data } = await supabase.storage.from("payment-proofs").createSignedUrl(pay.proof_file_path, 600);
-      setProofUrl(data?.signedUrl ?? null);
-    }
   };
 
   const submitReview = async (approve: boolean) => {
@@ -92,6 +92,32 @@ const AdminPayments = () => {
     fetchPayments();
   };
 
+  const submitCredit = async () => {
+    if (!creditUserId || !Number(creditAmount) || Number(creditAmount) <= 0) {
+      toast({ title: "Select a client and enter a valid amount", variant: "destructive" });
+      return;
+    }
+    setCrediting(true);
+    const { error } = await supabase.rpc("admin_credit_user", {
+      _user_id: creditUserId,
+      _amount: Number(creditAmount),
+      _description: creditDesc,
+      _type: creditType,
+    });
+    setCrediting(false);
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({
+      title: creditType === "credit" ? "Balance credited" : "Balance debited",
+      description: `$${Number(creditAmount).toFixed(2)} applied to the client's balance.`,
+    });
+    setCreditAmount("");
+    setCreditDesc("");
+    fetchPayments();
+  };
+
   if (authLoading) return null;
   if (!isAdmin) return <Navigate to="/dashboard" replace />;
 
@@ -99,6 +125,64 @@ const AdminPayments = () => {
     <DashboardLayout>
       <div className="max-w-6xl mx-auto space-y-6">
         <h1 className="text-2xl font-bold text-foreground">Admin — Payment Verification</h1>
+
+        {/* Credit client balance */}
+        <Card>
+          <CardContent className="p-4 space-y-4">
+            <p className="font-medium text-foreground">Credit / Debit Client Balance</p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label>Client</Label>
+                <select
+                  className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm"
+                  value={creditUserId}
+                  onChange={(e) => setCreditUserId(e.target.value)}
+                >
+                  <option value="">Select client</option>
+                  {[...new Map(payments.map((p) => [p.user_id, p.profile_name])).entries()].map(([uid, name]) => (
+                    <option key={uid} value={uid}>
+                      {name} — {uid.slice(0, 8)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-2">
+                <Label>Type</Label>
+                <select
+                  className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm"
+                  value={creditType}
+                  onChange={(e) => setCreditType(e.target.value as "credit" | "debit")}
+                >
+                  <option value="credit">Credit (add)</option>
+                  <option value="debit">Debit (subtract)</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <Label>Amount (USD)</Label>
+                <Input
+                  type="number"
+                  min="1"
+                  step="0.01"
+                  value={creditAmount}
+                  onChange={(e) => setCreditAmount(e.target.value)}
+                  placeholder="e.g. 160"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Description (optional)</Label>
+                <Input
+                  value={creditDesc}
+                  onChange={(e) => setCreditDesc(e.target.value)}
+                  placeholder="Reason or reference"
+                />
+              </div>
+            </div>
+            <Button onClick={submitCredit} disabled={crediting || !creditUserId || !creditAmount}>
+              {crediting ? "Applying..." : creditType === "credit" ? "Credit balance" : "Debit balance"}
+            </Button>
+          </CardContent>
+        </Card>
+
 
         <Card>
           <CardContent className="p-0 overflow-x-auto">
