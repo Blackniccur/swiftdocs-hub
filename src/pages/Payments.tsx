@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, Wallet, ArrowDownLeft, ArrowUpRight } from "lucide-react";
+import { Wallet, ArrowDownLeft, ArrowUpRight, Send } from "lucide-react";
 import { serviceLabels } from "@/lib/services";
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -30,7 +30,6 @@ const Payments = () => {
   const [paymentMethod, setPaymentMethod] = useState("");
   const [amount, setAmount] = useState("");
   const [referenceNumber, setReferenceNumber] = useState("");
-  const [proofFile, setProofFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -52,9 +51,9 @@ const Payments = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
-  const handleUploadProof = async (e: React.FormEvent) => {
+  const handleSubmitPayment = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !proofFile || !paymentMethod) return;
+    if (!user || !paymentMethod) return;
     const parsedAmount = Number(amount);
     if (!parsedAmount || parsedAmount <= 0) {
       toast({ title: "Enter a valid amount", variant: "destructive" });
@@ -63,24 +62,17 @@ const Payments = () => {
 
     setSubmitting(true);
     try {
-      const ext = proofFile.name.split(".").pop();
-      const filePath = `${user.id}/${selectedApp}/proof_${Date.now()}.${ext}`;
-
-      const { error: uploadError } = await supabase.storage.from("payment-proofs").upload(filePath, proofFile);
-      if (uploadError) throw uploadError;
-
       const { error } = await supabase.from("payments").insert({
         application_id: selectedApp === "none" ? null : selectedApp,
         user_id: user.id,
         amount: parsedAmount,
         payment_method: paymentMethod,
-        proof_file_path: filePath,
         reference_number: referenceNumber || null,
       });
       if (error) throw error;
 
       toast({
-        title: "Payment proof submitted",
+        title: "Payment submitted",
         description: "An admin will review it and credit your balance once verified.",
       });
 
@@ -89,7 +81,6 @@ const Payments = () => {
       setPaymentMethod("");
       setAmount("");
       setReferenceNumber("");
-      setProofFile(null);
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
     } finally {
@@ -121,20 +112,20 @@ const Payments = () => {
             <p className="text-muted-foreground">
               <strong>M-Pesa:</strong> paybill <code className="bg-muted px-1 rounded">123456</code>, account: your email
             </p>
-            <p className="text-muted-foreground">After paying, upload your receipt below for verification.</p>
+            <p className="text-muted-foreground">After paying, submit your amount and reference below for verification.</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
-              <Upload className="h-5 w-5 text-primary" />
-              Submit Proof of Payment
+              <Send className="h-5 w-5 text-primary" />
+              Submit Payment
             </CardTitle>
             <CardDescription>Approved payments are added to your account balance.</CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleUploadProof} className="space-y-4">
+            <form onSubmit={handleSubmitPayment} className="space-y-4">
               <div className="space-y-2">
                 <Label>Order (optional)</Label>
                 <Select value={selectedApp} onValueChange={setSelectedApp}>
@@ -185,17 +176,8 @@ const Payments = () => {
                   placeholder="e.g. TXN-123456 or M-Pesa code"
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="proof">Payment Receipt / Screenshot</Label>
-                <Input
-                  id="proof"
-                  type="file"
-                  accept="image/*,.pdf"
-                  onChange={(e) => setProofFile(e.target.files?.[0] || null)}
-                />
-              </div>
-              <Button type="submit" disabled={submitting || !proofFile || !paymentMethod || !amount}>
-                {submitting ? "Uploading..." : "Submit for Verification"}
+              <Button type="submit" disabled={submitting || !paymentMethod || !amount}>
+                {submitting ? "Submitting..." : "Submit for Verification"}
               </Button>
             </form>
           </CardContent>
