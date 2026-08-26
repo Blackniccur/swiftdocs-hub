@@ -66,7 +66,7 @@ const Index = () => {
             Documents &amp; AI Accounts, Delivered Fast
           </h1>
           <p className="text-sm md:text-base text-muted-foreground mb-8 max-w-xl mx-auto">
-            Driving license processing, Outlier, Handshake AI and Mercor AI accounts. Top up with Binance or M-Pesa and track every order in your dashboard.
+            Driving license processing, Outlier, Handshake AI and Mercor AI accounts. Top up with Binance and track every order in your dashboard.
           </p>
           <div className="flex items-center justify-center gap-3">
             <Link to="/auth">
@@ -127,7 +127,7 @@ const Index = () => {
           <h2 className="text-2xl font-bold text-foreground text-center mb-10">How It Works</h2>
           <div className="grid md:grid-cols-4 gap-8 max-w-4xl mx-auto">
             {[
-              { icon: CreditCard, title: "Choose & Pay", desc: "Select a service and pay via Binance or M-Pesa." },
+              { icon: CreditCard, title: "Choose & Pay", desc: "Select a service and pay via Binance." },
               { icon: Shield, title: "Upload Passport", desc: "Upload a clear photo from chest to head." },
               { icon: Clock, title: "We Process", desc: "Our team processes your order within 5 days." },
               { icon: CheckCircle, title: "Get Delivered", desc: "Download your documents from your dashboard." },

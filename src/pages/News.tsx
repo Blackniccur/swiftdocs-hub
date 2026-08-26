@@ -20,7 +20,7 @@ const posts = [
     tag: "Payments",
     title: "Faster deposit verification",
     date: "Jul 2026",
-    body: "Binance and M-Pesa proof-of-payment submissions are now reviewed within a few hours on business days.",
+    body: "Binance proof-of-payment submissions are now reviewed within a few hours on business days.",
   },
   {
     tag: "Support",
