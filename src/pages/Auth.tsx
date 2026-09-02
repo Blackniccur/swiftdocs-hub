@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Car, Briefcase, Bot, BookOpen, Terminal } from "lucide-react";
+import { ArrowLeft, CheckCircle, LockKeyhole, Terminal } from "lucide-react";
 import heroBg from "@/assets/dark-hero.jpg";
 
 
@@ -18,6 +18,8 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const initialMode = searchParams.get("mode") === "signup" ? "signup" : "signin";
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,61 +57,71 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col relative">
+    <div className="relative flex min-h-screen flex-col overflow-hidden bg-background">
       <img
         src={heroBg}
         alt=""
         aria-hidden="true"
         width={1536}
         height={1024}
-        className="absolute inset-0 h-full w-full object-cover opacity-40"
+        className="absolute inset-0 h-full w-full object-cover opacity-25"
       />
-      <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background" />
+      <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/85 to-background" />
+      <div className="market-grid absolute inset-0 opacity-30" />
 
-      <div className="relative border-b border-border/60 bg-background/70 backdrop-blur">
-        <div className="container mx-auto px-4 py-4 flex items-center gap-2">
-          <div className="h-9 w-9 rounded-md bg-primary/15 border border-primary/40 flex items-center justify-center">
+      <header className="relative border-b border-border bg-background/80 backdrop-blur-xl">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
+          <Link to="/" className="flex items-center gap-2.5" aria-label="AccelDocs home">
+          <div className="flex h-9 w-9 items-center justify-center rounded-md border border-primary/40 bg-primary/10">
             <Terminal className="h-5 w-5 text-primary" />
           </div>
-          <h1 className="text-lg font-bold tracking-[0.2em] text-primary uppercase">AccelDocs</h1>
+          <span className="text-base font-bold uppercase tracking-[0.16em] text-foreground">Accel<span className="text-primary">Docs</span></span>
+          </Link>
+          <Button asChild variant="ghost" size="sm">
+            <Link to="/"><ArrowLeft className="h-4 w-4" /> Marketplace</Link>
+          </Button>
         </div>
-      </div>
+      </header>
 
-      <div className="relative flex-1 flex items-center justify-center p-4">
-        <div className="w-full max-w-md">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-foreground mb-2 tracking-tight">Secure Access</h2>
-            <p className="text-muted-foreground text-sm">Marketplace for document &amp; account services</p>
+      <main className="relative flex flex-1 items-center justify-center px-4 py-10 sm:px-6">
+        <div className="grid w-full max-w-5xl items-center gap-12 lg:grid-cols-[1fr_440px]">
+          <div className="hidden lg:block">
+            <p className="mb-4 font-mono text-xs uppercase text-primary">Member access</p>
+            <h1 className="max-w-lg text-5xl font-extrabold leading-[1.08] text-foreground">Your marketplace,<br />all in one place.</h1>
+            <p className="mt-5 max-w-md text-sm leading-6 text-muted-foreground">Purchase services, submit payment details, follow progress, and securely receive your deliverables.</p>
+            <div className="mt-8 space-y-3">
+              {["Real-time order tracking", "Secure account balance", "Direct support with Melissa and our team"].map((item) => (
+                <div key={item} className="flex items-center gap-3 text-sm text-foreground">
+                  <CheckCircle className="h-4 w-4 text-primary" /> {item}
+                </div>
+              ))}
+            </div>
           </div>
 
-          <div className="flex flex-wrap justify-center gap-4 mb-8">
-            {[
-              { icon: Car, label: "Driving License" },
-              { icon: Briefcase, label: "Outlier" },
-              { icon: Bot, label: "Handshake AI" },
-              { icon: Briefcase, label: "Mercor AI" },
-              { icon: BookOpen, label: "AI Course" },
-            ].map((s) => (
-              <div key={s.label} className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <s.icon className="h-4 w-4 text-primary" />
-                <span>{s.label}</span>
-              </div>
-            ))}
-          </div>
-
-          <Card className="border-border/70 bg-card/80 backdrop-blur-md shadow-[var(--shadow-panel)]">
-
-            <Tabs defaultValue="signin">
-              <CardHeader>
+          <div className="w-full max-w-md justify-self-center lg:max-w-none">
+            <div className="mb-6 lg:hidden">
+              <p className="mb-2 font-mono text-xs uppercase text-primary">Member access</p>
+              <h1 className="text-3xl font-bold text-foreground">Welcome to AccelDocs</h1>
+            </div>
+          <Card className="border-border bg-card/90 shadow-[var(--shadow-panel)] backdrop-blur-xl">
+            <Tabs defaultValue={initialMode}>
+              <CardHeader className="space-y-5 border-b border-border">
+                <div className="flex items-center gap-3">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-md bg-primary/10 text-primary"><LockKeyhole className="h-5 w-5" /></span>
+                  <div>
+                    <p className="font-semibold text-foreground">Secure access</p>
+                    <p className="text-xs text-muted-foreground">Sign in or create your account</p>
+                  </div>
+                </div>
                 <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger value="signin">Sign In</TabsTrigger>
-                  <TabsTrigger value="signup">Sign Up</TabsTrigger>
+                  <TabsTrigger value="signup">Create Account</TabsTrigger>
                 </TabsList>
               </CardHeader>
               <TabsContent value="signin">
                 <form onSubmit={handleSignIn}>
                   <CardContent className="space-y-4">
-                    <CardDescription>Sign in to your account to continue.</CardDescription>
+                    <CardDescription>Enter your details to open your dashboard.</CardDescription>
                     <div className="space-y-2">
                       <Label htmlFor="signin-email">Email</Label>
                       <Input id="signin-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="you@example.com" />
@@ -127,7 +139,7 @@ const Auth = () => {
               <TabsContent value="signup">
                 <form onSubmit={handleSignUp}>
                   <CardContent className="space-y-4">
-                    <CardDescription>Create an account to get started.</CardDescription>
+                    <CardDescription>Create your account instantly. No email verification is required.</CardDescription>
                     <div className="space-y-2">
                       <Label htmlFor="signup-name">Full Name</Label>
                       <Input id="signup-name" type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} required placeholder="John Doe" />
@@ -148,8 +160,10 @@ const Auth = () => {
               </TabsContent>
             </Tabs>
           </Card>
+          <p className="mt-5 text-center text-xs text-muted-foreground">Protected access · Secure transactions · Private delivery</p>
+          </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 };
