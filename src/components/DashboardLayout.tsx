@@ -21,6 +21,8 @@ import {
   DollarSign,
   MessageSquare,
   ShoppingCart,
+  Gauge,
+  FileCheck,
 } from "lucide-react";
 
 
@@ -45,7 +47,10 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   ];
 
   const adminLinks = [
+    { href: "/admin/overview", label: "Admin Home", icon: Gauge },
     { href: "/admin", label: "All Orders", icon: Users },
+    { href: "/admin/users", label: "Users", icon: Users },
+    { href: "/admin/deliverables", label: "Deliverables", icon: FileCheck },
     { href: "/admin/payments", label: "All Payments", icon: CreditCard },
     { href: "/admin/escrow", label: "Escrow Admin", icon: Lock },
     { href: "/admin/pricing", label: "Pricing", icon: DollarSign },
