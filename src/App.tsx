@@ -25,6 +25,9 @@ import AdminPayments from "./pages/AdminPayments";
 import AdminPricing from "./pages/AdminPricing";
 import AdminChat from "./pages/AdminChat";
 import AdminEscrow from "./pages/AdminEscrow";
+import AdminOverview from "./pages/AdminOverview";
+import AdminUsers from "./pages/AdminUsers";
+import AdminDeliverables from "./pages/AdminDeliverables";
 import NotFound from "./pages/NotFound";
 
 
@@ -52,7 +55,10 @@ const App = () => (
               <Route path="/dashboard/application/:id" element={<ProtectedRoute><ApplicationDetail /></ProtectedRoute>} />
               <Route path="/dashboard/payments" element={<ProtectedRoute><Payments /></ProtectedRoute>} />
               <Route path="/dashboard/support" element={<ProtectedRoute><ContactSupport /></ProtectedRoute>} />
+              <Route path="/admin/overview" element={<ProtectedRoute><AdminOverview /></ProtectedRoute>} />
               <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+              <Route path="/admin/users" element={<ProtectedRoute><AdminUsers /></ProtectedRoute>} />
+              <Route path="/admin/deliverables" element={<ProtectedRoute><AdminDeliverables /></ProtectedRoute>} />
               <Route path="/admin/payments" element={<ProtectedRoute><AdminPayments /></ProtectedRoute>} />
               <Route path="/admin/pricing" element={<ProtectedRoute><AdminPricing /></ProtectedRoute>} />
               <Route path="/admin/escrow" element={<ProtectedRoute><AdminEscrow /></ProtectedRoute>} />
