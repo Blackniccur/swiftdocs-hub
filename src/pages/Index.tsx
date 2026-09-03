@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, CheckCircle, Search, ShieldCheck, Sparkles, Terminal } from "lucide-react";
+import { ArrowRight, CheckCircle, Search, Shield, ShieldCheck, Sparkles, Terminal } from "lucide-react";
 import { categoryList, iconMap, serviceCategories, type ServicePrice } from "@/lib/services";
 import heroBg from "@/assets/dark-hero.jpg";
 
